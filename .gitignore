@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# Data files (large binary/netcdf files)
+*.bin
+*.nc
+!grid_routing_data.nc.zip
+data/
+!data/.gitkeep
+
+# Output directories (keep structure, ignore contents)
+output/**/model_output/*.nc
+output/**/model_output/*.bin
+output/**/rivermap/*.bin
+output/**/Initialization/*.nc
+output/**/restart/*.nc
+output/**/restart/*.bin
+
+# Keep directory structure
+!output/.gitkeep
+!output/**/.gitkeep
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test outputs
+test_output/
+tmp/
+temp/
+/output/Global15min/rivermap
+DOCUMENTATION_INDEX.md
+CLAUDE.md
+CONTRIBUTING.md
+RESTART_CHANGES.md
