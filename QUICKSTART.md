@@ -224,7 +224,7 @@ pip install netCDF4
 ### Problem: Simulation is slow
 
 **Expected:** PyCaMa is ~50% slower than Fortran version. For the 3-day test:
-- Expected time: ~5-15 minutes (depends on CPU)
+- Expected time: ~1-2 minutes (depends on CPU)
 - Longer for larger domains or longer simulations
 
 **Tips for faster runs:**
