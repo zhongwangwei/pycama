@@ -293,8 +293,8 @@ All configuration is done through Fortran-style namelist files (e.g., `nml/namel
 ```
 Domain: 1440 x 720 grid cells
 Active cells: ~250,000
-Time steps: 72 (1-hour timestep)
-Wall clock time: ~1-2 minutes (single core)
+Time steps:  
+Wall clock time:  
 ```
 
 ## Known Limitations
@@ -443,10 +443,6 @@ A physically based description of floodplain inundation dynamics in a global riv
 Water Resources Research, 47(4), W04501. doi:10.1029/2010WR009726
 ```
 
-**PyCaMa (this work):**
-```
-[Your citation - please update when published]
-```
 
 ## Acknowledgments
 
