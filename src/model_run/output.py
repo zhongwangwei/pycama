@@ -266,6 +266,19 @@ class OutputManager:
                 'standard_name': 'water_surface_height_above_reference_datum',
             },
 
+            # Dam operation variables (matching Fortran CaMa-Flood)
+            'damsto': {
+                'long_name': 'reservoir storage',
+                'units': 'm3',
+                'standard_name': 'water_volume_in_reservoir',
+            },
+            'daminf': {
+                'long_name': 'reservoir inflow',
+                'units': 'm3/s',
+                'standard_name': 'water_volume_transport_into_reservoir',
+                'cell_methods': 'time: mean',  # Time-averaged (matches Fortran d2daminf_oAVG)
+            },
+
             # Time-averaged diagnostic variables
             'rivout_avg': {
                 'long_name': 'Time-averaged river channel outflow',
@@ -301,8 +314,9 @@ class OutputManager:
                 'cell_methods': 'time: mean',
             },
             'daminf_avg': {
-                'long_name': 'Time-averaged dam inflow',
-                'units': 'm3 s-1',
+                'long_name': 'reservoir inflow',
+                'units': 'm3/s',
+                'standard_name': 'water_volume_transport_into_reservoir',
                 'cell_methods': 'time: mean',
             },
 
@@ -454,7 +468,7 @@ class OutputManager:
 
             # Map averaged diagnostics to non-averaged names for CaMa-Flood compatibility
             # In CaMa-Flood Fortran, the output variables are time-averaged by default
-            for avg_var in ['rivout_avg', 'fldout_avg', 'outflw_avg', 'rivvel_avg', 'pthout_avg']:
+            for avg_var in ['rivout_avg', 'fldout_avg', 'outflw_avg', 'rivvel_avg', 'pthout_avg', 'daminf_avg']:
                 base_var = avg_var.replace('_avg', '')
                 if avg_var in diagnostics and base_var in self.cvarsout:
                     # Use time-averaged value instead of instantaneous for output

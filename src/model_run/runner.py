@@ -367,8 +367,17 @@ class CaMaFloodRunner:
 
     def _initialize_dam_operation(self):
         """Initialize dam operation manager"""
-        self.dam_manager = DamOperationManager(self.nml, self.physics)
+        self.dam_manager = DamOperationManager(self.nml, self.physics, init_nc_file=self.init_nc_file)
         self.dam_manager.initialize()
+
+        # Verify dam arrays are created if dam operation is enabled
+        if self.physics.ldamout:
+            if not hasattr(self.physics, 'd2damsto'):
+                print("  WARNING: Dam operation enabled but d2damsto not created")
+                print("  Creating empty dam arrays...")
+                self.physics.d2damsto = np.zeros(self.physics.nseqmax, dtype=np.float64)
+            if not hasattr(self.physics, 'd2daminf'):
+                self.physics.d2daminf = np.zeros(self.physics.nseqmax, dtype=np.float64)
 
     def _initialize_diagnostics(self):
         """Initialize diagnostic manager"""

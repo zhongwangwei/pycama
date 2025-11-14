@@ -135,7 +135,10 @@ class CaMaPhysics:
         self.lslpmix = self.nml.get('MODEL_RUN', 'lslpmix', False)  # Mixed scheme (slope-dependent)
         self.lfldout = self.nml.get('MODEL_RUN', 'lfldout', True)   # Floodplain discharge
         self.lpthout = self.nml.get('MODEL_RUN', 'lpthout', False)  # Bifurcation
-        self.ldamout = self.nml.get('MODEL_RUN', 'ldamout', False)  # Dam operation
+
+        # Dam operation flag: check NRUNVER first (Fortran-compatible), then MODEL_RUN (backward compatibility)
+        self.ldamout = self.nml.get('NRUNVER', 'LDAMOUT', self.nml.get('MODEL_RUN', 'ldamout', False))
+
         self.lgdwdly = self.nml.get('MODEL_RUN', 'lgdwdly', False)  # Groundwater delay
         self.lrosplit = self.nml.get('MODEL_RUN', 'lrosplit', False)  # Runoff separation
         self.lstoonly = self.nml.get('MODEL_RUN', 'lstoonly', False)  # Storage-only restart
@@ -1385,9 +1388,13 @@ class CaMaPhysics:
         if self.lpthout and self.npthout > 0:
             state['pthflw'] = self.d1pthflw.copy() if hasattr(self, 'd1pthflw') else None
 
-        # Add dam inflow if enabled
-        if self.ldamout and hasattr(self, 'd2daminf'):
-            state['daminf'] = self.d2daminf[:self.nseqall].copy()
+        # Add dam variables if enabled (matching Fortran CaMa-Flood)
+        if self.ldamout:
+            if hasattr(self, 'd2damsto'):
+                state['damsto'] = self.d2damsto[:self.nseqall].copy()
+            if hasattr(self, 'd2daminf'):
+                state['daminf'] = self.d2daminf[:self.nseqall].copy()
+            # Note: Dam outflow is represented by rivout at dam grids
 
         return state
 
