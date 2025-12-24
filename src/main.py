@@ -123,6 +123,12 @@ def run_initialization(nml, case_dir, case_name):
         init_app.PARAM_FILE = os.path.basename(diminfo_file)
         init_app.OUTPUT_DIR = init_output_dir
         
+        # Sediment configuration
+        init_app.SED_DIR = nml.get('INIT', 'csed_dir', '')
+        init_app.SED_FRC = nml.get('INIT', 'csed_frc', '')
+        init_app.SED_SLOPE = nml.get('INIT', 'csed_slope', '')
+
+        
         # Run initialization steps
         init_app.read_param_file()
         init_app.cmf_rivmap_init()
@@ -139,6 +145,7 @@ def run_initialization(nml, case_dir, case_name):
         init_app.read_inpmat()
         init_app.read_dam_param()
         init_app.cmf_topo_init()
+        init_app.read_sediment_data()
         init_app.export_to_netcdf()
         
         print("\n✓ Initialization completed successfully!")

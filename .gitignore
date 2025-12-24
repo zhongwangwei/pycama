@@ -85,3 +85,6 @@ RESTART_CHANGES.md
 /CaMa-Flood_v4-master
 /data-full
 *.md
+/output
+output/Global15min/Initialization/grid_routing_data.nc.zip
+/output

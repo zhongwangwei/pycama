@@ -1,13 +1,13 @@
 &OUTPUT
   ! Output configuration
   output_base_dir = 'output/'      ! Base output directory (relative to camflood directory) - 所有生成文件统一存放在此目录
-  case_name = 'Global15min'                 ! Case name (output will be output_base_dir/case_name)
+  case_name = 'Global15min2'                 ! Case name (output will be output_base_dir/case_name)
 /
 
 &OPTIONS
   ! Main processing options - control which major functions to run
-  run_grid = .false.           ! Run river network generation
-  run_init = .false.          ! Run initialization to NetCDF
+  run_grid = .true.           ! Run river network generation
+  run_init = .true.          ! Run initialization to NetCDF
   run_sim  = .true.          ! Run model simulation
 /
 
@@ -20,7 +20,7 @@
   ! ------------------------------------------------------------------------
   ! Regional Domain Configuration
   ! ------------------------------------------------------------------------
-  global_map_dir = '/Users/zhongwangwei/Desktop/Github/pycama/CaMa-Flood_v4-master/map/glb_15min-org/'  ! Global river network map directory
+  global_map_dir = '/Volumes/Data/cama/glb_15min/'  ! Global river network map directory
   west = -180.0            ! Regional domain west boundary [degrees]
   east = 180.0           ! Regional domain east boundary [degrees]
   south = -90.0            ! Regional domain south boundary [degrees]
@@ -61,7 +61,7 @@
   ! Note: hires_dir will default to {output_dir}/{hires_tag}/
 
   ! Runoff data for discharge calculation
-  runoff_file = '/Users/zhongwangwei/Desktop/Github/pycama/data/runoff/runoff_climc_025_Global_mm_s.nc'
+  runoff_file = '/Volumes/Data/cama/data-full/runoff/runoff_climc_025_Global_mm_s.nc'
   runoff_var = 'ro'
 
   ! Channel geometry parameters
@@ -90,14 +90,14 @@
   ! ------------------------------------------------------------------------
   ! Dam Allocation and Parameter Calculation
   ! ------------------------------------------------------------------------
-  dam_input_file = '/Users/zhongwangwei/Desktop/Github/pycama/data/GRanD_allocated.csv'
+  dam_input_file = '/Volumes/Data/cama/data-full/GRanD_allocated.csv'
   syear = 1980
   eyear = 2019
   dt = 86400
   min_uparea = 0
-  natsim_dir = '/Users/zhongwangwei/Desktop/Github/pycama/CaMa-Flood_v4-master/out/glb_15min/'
-  grsad_dir = '/Users/zhongwangwei/Desktop/Github/pycama/data/Dam+Lake/GRSAD/GRSAD_timeseries/'
-  regeom_dir = '/Users/zhongwangwei/Desktop/Github/pycama/data/Dam+Lake/ReGeom/Area_Strg_Dp/Area_Strg_Dp/'
+  natsim_dir = '/Volumes/Data/cama/GRFR-glb_15min/'
+  grsad_dir = '/Volumes/Data/cama/data-full/Dam+Lake/GRSAD/GRSAD_timeseries/'
+  regeom_dir = '/Volumes/Data/cama/data-full/Dam+Lake/ReGeom/Area_Strg_Dp/Area_Strg_Dp/'
 
   ! ------------------------------------------------------------------------
   ! Resolution Configuration (for diminfo and inpmat naming)
@@ -122,6 +122,12 @@
   ! ------------------------------------------------------------------------
   coutput    = 'grid_routing_data.nc'  ! Output NetCDF file name
   nclevel    = 4                        ! NetCDF compression level (0-9)
+
+  ! Sediment Parameter Files
+  csed_dir     = 'data/sed/'
+  csed_frc     = 'sedfrc_v2_final.nc'
+  csed_slope   = 'slope.nc'
+
 /
 
 &MODEL_RUN

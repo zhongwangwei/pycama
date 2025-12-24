@@ -107,6 +107,15 @@ class CoLMGridRoutingInit:
         self.INPMAT_FILE = ""
         self.OUTFILE = ""
 
+        # Sediment files
+        self.SED_DIR = ""
+        self.SED_FRC = ""
+        self.SED_SLOPE = ""
+        
+        # Sediment data arrays
+        self.sed_frc = None
+        self.sed_slope = None
+
     def parse_arguments(self):
         """Parse command line arguments"""
         print("\n*** Step 0: Parsing Command Line Arguments ***")
@@ -715,6 +724,83 @@ class CoLMGridRoutingInit:
 
         print("CMF::TOPO_INIT: end")
 
+    def map2vec_general(self, r2map):
+        """Convert 2D map to 1D vector.
+        
+        Args:
+            r2map: 2D array with shape (NX, NY), i.e., (lon, lat).
+                   Caller must transpose (lat, lon) data before calling.
+        
+        Returns:
+            1D vector of length NSEQMAX with values extracted at river sequence points.
+        """
+        assert r2map.shape == (self.NX, self.NY), \
+            f"Expected shape ({self.NX}, {self.NY}), got {r2map.shape}. Did you forget to transpose?"
+            
+        d1vec = np.zeros(self.NSEQMAX, dtype=np.float64)
+        for iseq in range(self.NSEQMAX):
+            ix = self.I1SEQX[iseq] - 1  # Convert to 0-based
+            iy = self.I1SEQY[iseq] - 1
+            d1vec[iseq] = float(r2map[ix, iy])
+        return d1vec
+
+
+    def read_sediment_data(self):
+        """Read sediment data from NC files (sedfrc and slope)"""
+        print("\n*** Step 4.5: Reading Sediment Data ***")
+        if not self.SED_DIR or (not self.SED_FRC and not self.SED_SLOPE):
+            print("No sediment data configured, skipping.")
+            return
+
+        print(f"Sediment dir: {self.SED_DIR}")
+        
+        # Helper to get full path
+        def get_path(fname):
+            if os.path.isabs(fname): return fname
+            return os.path.join(self.SED_DIR, fname)
+
+        # 1. Read sedfrc
+        if self.SED_FRC:
+            fpath = get_path(self.SED_FRC)
+            print(f"Reading {fpath}...")
+            try:
+                with Dataset(fpath, 'r') as nc:
+                    # sedfrc: (sed, lat, lon) -> (3, 720, 1440)
+                    v = nc.variables['sedfrc'][:]
+                    # shape (3, NY, NX)
+                    n_sed = v.shape[0]
+                    self.sed_frc = np.zeros((n_sed, self.NSEQMAX), dtype=np.float64)
+                    
+                    for i in range(n_sed):
+                        # v[i] is (NY, NX)
+                        # Transpose to (NX, NY)
+                        layer = v[i].T
+                        self.sed_frc[i, :] = self.map2vec_general(layer)
+                        
+            except Exception as e:
+                print(f"Error reading {fpath}: {e}")
+
+        # 2. Read slope
+        if self.SED_SLOPE:
+            fpath = get_path(self.SED_SLOPE)
+            print(f"Reading {fpath}...")
+            try:
+                with Dataset(fpath, 'r') as nc:
+                    # slope: (layer, lat, lon) -> (10, 720, 1440)
+                    v = nc.variables['slope'][:]
+                    # shape (10, NY, NX)
+                    n_layer = v.shape[0]
+                    self.sed_slope = np.zeros((n_layer, self.NSEQMAX), dtype=np.float64)
+                    
+                    for i in range(n_layer):
+                        layer = v[i].T
+                        self.sed_slope[i, :] = self.map2vec_general(layer)
+                        
+            except Exception as e:
+                print(f"Error reading {fpath}: {e}")
+            
+        print("READ_SEDIMENT: end")
+
     def export_to_netcdf(self):
         """Export to NetCDF"""
         print("\n*** Step 5: Exporting to NetCDF ***")
@@ -1027,6 +1113,25 @@ class CoLMGridRoutingInit:
                 dam_seq.units = '1'
                 dam_seq[:] = self.dam_seq
 
+            # Define and write sediment variables
+            if self.sed_frc is not None or self.sed_slope is not None:
+                print("Writing sediment variables...")
+                # Dimensions
+                if self.sed_frc is not None:
+                    ncfile.createDimension('sed_n', self.sed_frc.shape[0])
+                if self.sed_slope is not None:
+                    ncfile.createDimension('slope_layers', self.sed_slope.shape[0])
+
+                if self.sed_frc is not None:
+                    sed_frc = ncfile.createVariable('sed_frc', 'f8', ('nseqmax', 'sed_n'))
+                    sed_frc.long_name = 'sediment fraction'
+                    sed_frc[:] = self.sed_frc.T
+                
+                if self.sed_slope is not None:
+                    sed_slope = ncfile.createVariable('sed_slope', 'f8', ('nseqmax', 'slope_layers'))
+                    sed_slope.long_name = 'sediment slope'
+                    sed_slope[:] = self.sed_slope.T
+
         print("NetCDF export completed!")
 
     def run(self):
@@ -1057,6 +1162,9 @@ class CoLMGridRoutingInit:
 
         # Initialize topography
         self.cmf_topo_init()
+
+        # Read sediment data
+        self.read_sediment_data()
 
         # Export to NetCDF
         self.export_to_netcdf()
